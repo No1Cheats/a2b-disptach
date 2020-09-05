@@ -33,12 +33,12 @@ def get_distance(loc1, loc2):
     return round(geopy.distance.geodesic(coords_1, coords_2).nm)
 
 
-def get_plane(registration):
+def get_plane_equipment(registration):
     url = 'https://server.fseconomy.net/data?userkey=' + config[
         'datafeed'] + '&format=xml&query=aircraft&search=registration&aircraftreg=' + registration
     response = requests.request("GET", url)
     root = ET.fromstring(response.content)
-    print(root[0][9].text)  # [0][9] is the Equipment tag
+    return root[0][9].text  # [0][9] is the Equipment tag
 
 
 @client.command()
@@ -56,14 +56,17 @@ async def help(ctx):
 
 @client.command()
 async def quote(ctx, registration, origin, destination):
-    get_plane(registration)
+    equipment = get_plane_equipment(registration)
     distance = get_distance(origin, destination)
+    price = distance * 10
+    if(equipment == 'VFR'):
+        price += distance*2
     quote_embed = discord.Embed(
         title="A2B Bot",
         description='See your quote below',
         color=discord.Colour.red()
     )
-    quote_embed.add_field(name="Distance: ", value=distance, inline=False)
+    quote_embed.add_field(name="Price: ", value=price, inline=False)
     await ctx.send(embed=quote_embed)
 
 
