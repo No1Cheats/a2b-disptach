@@ -68,7 +68,11 @@ async def quote(ctx, registration, destination):
         description='See your quote below',
         color=discord.Colour.red()
     )
-    quote_embed.add_field(name="Price: ", value=price, inline=False)
+    quote_embed.add_field(name="Customer:", value=" customerName", inline=False)
+    quote_embed.add_field(name="Distance:", value= str(distance) + "nm", inline=False)
+    quote_embed.add_field(name="Cost:", value="v$" + str(price) + " + expenses", inline=False)
+    quote_embed.add_field(name="Delivery within:", value="x days", inline=False)
+    quote_embed.add_field(name="If you are interested in accepting this quote please reply back with your acceptance. ", value="\u200b", inline=False)
     await ctx.send(embed=quote_embed)
 
 
