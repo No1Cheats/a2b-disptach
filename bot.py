@@ -56,6 +56,7 @@ async def help(ctx):
 
 @client.command()
 async def quote(ctx, registration, destination):
+    user = ctx.author
     plane = get_plane_info(registration)
     origin = plane[0]
     equipment = plane[1]
@@ -68,11 +69,13 @@ async def quote(ctx, registration, destination):
         description='See your quote below',
         color=discord.Colour.red()
     )
-    quote_embed.add_field(name="Customer:", value=" customerName", inline=False)
+    quote_embed.add_field(name="Customer:", value=user.mention, inline=False)
     quote_embed.add_field(name="Distance:", value= str(distance) + "nm", inline=False)
     quote_embed.add_field(name="Cost:", value="v$" + str(price) + " + expenses", inline=False)
     quote_embed.add_field(name="Delivery within:", value="x days", inline=False)
-    quote_embed.add_field(name="If you are interested in accepting this quote please reply back with your acceptance. ", value="\u200b", inline=False)
+    quote_embed.add_field(name="Next steps:", value="Note the price quoted may deviate from the final price due to this"
+                                                    " tool using straight line distance. If you wish to accept"
+                                                    " the quote please reply with your acceptance.", inline=False)
     await ctx.send(embed=quote_embed)
 
 
