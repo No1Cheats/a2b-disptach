@@ -5,6 +5,7 @@ import json
 import discord
 import geopy.distance
 import requests
+import math
 from discord.ext import commands
 import xml.etree.ElementTree as ET
 
@@ -33,12 +34,34 @@ def get_distance(loc1, loc2):
     return round(geopy.distance.geodesic(coords_1, coords_2).nm)
 
 
+def get_number_of_stops(type, distance):
+    url = "https://server.fseconomy.net/data?userkey=" + config[
+        'datafeed'] + "&format=xml&query=aircraft&search=configs"
+    response = requests.request("GET", url)
+    root = ET.fromstring(response.content)
+    for plane in root:
+        for entry in plane:
+            if type == entry.text:
+                cruise_speed = float(plane[3].text)
+                gph = float(plane[4].text)
+                fuel_capacity = float(plane[9].text) + float(plane[10].text) + float(plane[11].text) + float(
+                    plane[12].text) + float(plane[13].text) + float(plane[14].text) + float(plane[15].text) + float(
+                    plane[16].text) + float(plane[17].text) + float(plane[18].text) + float(plane[19].text)
+                max_flight_time = fuel_capacity / gph  # Maximum flight time the plane can achieve according to it's maximum fuel capacity
+                max_range = cruise_speed * max_flight_time
+                if max_range > distance:
+                    return "(direct)"
+                if distance / max_range < 2:
+                    return "(1 stop)"
+                return "(" + str(math.ceil(distance / max_range)) + " stops)"
+
+
 def get_plane_info(registration):
     url = 'https://server.fseconomy.net/data?userkey=' + config[
         'datafeed'] + '&format=xml&query=aircraft&search=registration&aircraftreg=' + registration
     response = requests.request("GET", url)
     root = ET.fromstring(response.content)
-    return [root[0][4].text, root[0][9].text]
+    return [root[0][1].text, root[0][4].text, root[0][9].text]
 
 
 @client.command()
@@ -55,24 +78,30 @@ async def help(ctx):
 
 
 @client.command()
-async def quote(ctx, registration, destination):
+async def estimate(ctx, registration, destination):
     user = ctx.author
     plane = get_plane_info(registration)
-    origin = plane[0]
-    equipment = plane[1]
+    type = plane[0]
+    origin = plane[1]
+    equipment = plane[2]
     distance = get_distance(origin, destination)
+    number_of_stops = get_number_of_stops(type, distance)
     price = distance * 10
     if equipment == 'VFR':
-        price += distance*2
+        price += distance * 2
+    if distance < 1000:
+        days = 3
+    else:
+        days = 7
     quote_embed = discord.Embed(
         title="A2B Bot",
-        description='See your quote below',
+        description='See your estimate below',
         color=discord.Colour.red()
     )
     quote_embed.add_field(name="Customer:", value=user.mention, inline=False)
-    quote_embed.add_field(name="Distance:", value= str(distance) + "nm", inline=False)
+    quote_embed.add_field(name="Distance:", value=str(distance) + "nm " + str(number_of_stops), inline=False)
     quote_embed.add_field(name="Cost:", value="v$" + str(price) + " + expenses", inline=False)
-    quote_embed.add_field(name="Delivery within:", value="x days", inline=False)
+    quote_embed.add_field(name="Delivery within:", value= str(days) + " days", inline=False)
     quote_embed.add_field(name="Next steps:", value="Note the price quoted may deviate from the final price due to this"
                                                     " tool using straight line distance. If you wish to accept"
                                                     " the quote please reply with your acceptance.", inline=False)
