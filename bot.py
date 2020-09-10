@@ -6,10 +6,11 @@ import discord
 import geopy.distance
 import requests
 import math
-from discord.ext import commands
 import xml.etree.ElementTree as ET
 
-# Opening the config.json file that stores the Discord Token and avwx Auth code
+from discord.ext import commands
+
+# Opening the config.json file that stores the Discord Token, AVWX auth header and FSEconomy Datafeed
 with open('config.json') as config_file:
     config = json.load(config_file)
 
@@ -19,6 +20,11 @@ client.remove_command('help')  # removes the custom help command
 
 
 def get_station(loc):
+    """
+    Function that returns json data from a certain station (Airport) using AVWX
+    :param loc: a four letter ICAO code e.g. KJFK
+    :return: json data received from AVWX
+    """
     url = 'https://avwx.rest/api/station/' + loc + '?format=json'
     headers = {'Authorization': config['authHeader']}
     r = requests.request("GET", url, headers=headers)
@@ -27,6 +33,12 @@ def get_station(loc):
 
 
 def get_distance(loc1, loc2):
+    """
+    Function that returns json data from a certain station (Airport) using AVWX
+    :param loc1: a four letter ICAO code e.g. KJFK
+    :param loc2: a four letter ICAO code e.g. KJFK
+    :return: distance (float) between loc1 and loc2 in nautical miles
+    """
     station1 = get_station(loc1)
     station2 = get_station(loc2)
     coords_1 = (station1['latitude'], station1['longitude'])
@@ -47,7 +59,8 @@ def get_number_of_stops(type, distance):
                 fuel_capacity = float(plane[9].text) + float(plane[10].text) + float(plane[11].text) + float(
                     plane[12].text) + float(plane[13].text) + float(plane[14].text) + float(plane[15].text) + float(
                     plane[16].text) + float(plane[17].text) + float(plane[18].text) + float(plane[19].text)
-                max_flight_time = fuel_capacity / gph  # Maximum flight time the plane can achieve according to it's maximum fuel capacity
+                max_flight_time = fuel_capacity / gph  # Maximum flight time the plane can achieve according to it's
+                # maximum fuel capacity
                 max_range = cruise_speed * max_flight_time
                 if max_range > distance:
                     return "(direct)"
@@ -73,7 +86,7 @@ async def help(ctx):
     )
     # Setting all the Values
     help_embed.add_field(name='Request a quote using: \n!quote registration origin destination ',
-                         value='!quote N828SY KJFK KBOS', inline=False)
+                         value='!estimate N828SY KJFK KBOS', inline=False)
     await ctx.send(embed=help_embed)
 
 
@@ -101,8 +114,8 @@ async def estimate(ctx, registration, destination):
     quote_embed.add_field(name="Customer:", value=user.mention, inline=False)
     quote_embed.add_field(name="Distance:", value=str(distance) + "nm " + str(number_of_stops), inline=False)
     quote_embed.add_field(name="Cost:", value="v$" + str(price) + " + expenses", inline=False)
-    quote_embed.add_field(name="Delivery within:", value= str(days) + " days", inline=False)
-    quote_embed.add_field(name="Next steps:", value="Note the price quoted may deviate from the final price due to this"
+    quote_embed.add_field(name="Delivery within:", value=str(days) + " days", inline=False)
+    quote_embed.add_field(name="Next steps:", value="If you want to get a mo"
                                                     " tool using straight line distance. If you wish to accept"
                                                     " the quote please reply with your acceptance.", inline=False)
     await ctx.send(embed=quote_embed)
