@@ -70,6 +70,11 @@ def get_number_of_stops(type, distance):
 
 
 def get_plane_info(registration):
+    """
+    Function that returns aircraft name, equipment and location from FSE datafeed
+    :param registration: the aircraft registration in FSE e.g. N400FL
+    :return: Aircraft name, Aircraft Location and Aircraft equipment
+    """
     url = 'https://server.fseconomy.net/data?userkey=' + config[
         'datafeed'] + '&format=xml&query=aircraft&search=registration&aircraftreg=' + registration
     response = requests.request("GET", url)
