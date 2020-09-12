@@ -46,14 +46,14 @@ def get_distance(loc1, loc2):
     return round(geopy.distance.geodesic(coords_1, coords_2).nm)
 
 
-def get_number_of_stops(type, distance):
+def get_number_of_stops(aircraft_type, distance):
     url = "https://server.fseconomy.net/data?userkey=" + config[
         'datafeed'] + "&format=xml&query=aircraft&search=configs"
     response = requests.request("GET", url)
     root = ET.fromstring(response.content)
     for plane in root:
         for entry in plane:
-            if type == entry.text:
+            if aircraft_type == entry.text:
                 cruise_speed = float(plane[3].text)
                 gph = float(plane[4].text)
                 fuel_capacity = float(plane[9].text) + float(plane[10].text) + float(plane[11].text) + float(
@@ -62,9 +62,11 @@ def get_number_of_stops(type, distance):
                 max_flight_time = fuel_capacity / gph  # Maximum flight time the plane can achieve according to it's
                 # maximum fuel capacity
                 max_range = cruise_speed * max_flight_time
+                print(max_range)
+                print(distance)
                 if max_range > distance:
                     return 0
-                return math.ceil(distance / max_range)
+                return math.floor(distance / max_range)
 
 
 def get_plane_info(registration):
@@ -82,14 +84,18 @@ def get_plane_info(registration):
 
 @client.command()
 async def help(ctx):
+    """
+    Used to help users use the bot
+    :param ctx: discord context
+    """
     help_embed = discord.Embed(
         title="A2B Bot",
         description='See the commands list below',
         color=discord.Colour.red()
     )
     # Setting all the Values
-    help_embed.add_field(name='Request a quote using: \n!quote registration origin destination ',
-                         value='!estimate N828SY KJFK KBOS', inline=False)
+    help_embed.add_field(name='Request an instant estimate using: \n!estimate registration destination ',
+                         value='!estimate N828SY KBOS', inline=False)
     await ctx.send(embed=help_embed)
 
 
@@ -97,21 +103,24 @@ async def help(ctx):
 async def estimate(ctx, registration, destination):
     user = ctx.author
     plane = get_plane_info(registration)
-    type = plane[0]
+    aircraft_type = plane[0]
     origin = plane[1]
     equipment = plane[2]
     distance = get_distance(origin, destination)
-    number_of_stops = get_number_of_stops(type, distance)
+    number_of_stops = get_number_of_stops(aircraft_type, distance)
     price = distance * 10
+    # If the A/C does not have IFR then a
     if equipment == 'VFR':
         price += distance * 2
+    # decision tree deciding the amount of days a ferry will take
     if distance < 1000:
         days = 3
     else:
         days = 7
+    # Decision tree to display the correct amount of stops or direct
     if number_of_stops == 0:
         number_of_stops = "(direct)"
-    if number_of_stops == 1:
+    elif number_of_stops == 1:
         number_of_stops = "(1 stop)"
     else:
         number_of_stops = "(" + str(number_of_stops) + " stops)"
