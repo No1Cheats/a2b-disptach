@@ -63,10 +63,8 @@ def get_number_of_stops(type, distance):
                 # maximum fuel capacity
                 max_range = cruise_speed * max_flight_time
                 if max_range > distance:
-                    return "(direct)"
-                if distance / max_range < 2:
-                    return "(1 stop)"
-                return "(" + str(math.ceil(distance / max_range)) + " stops)"
+                    return 0
+                return math.ceil(distance / max_range)
 
 
 def get_plane_info(registration):
@@ -111,13 +109,19 @@ async def estimate(ctx, registration, destination):
         days = 3
     else:
         days = 7
+    if number_of_stops == 0:
+        number_of_stops = "(direct)"
+    if number_of_stops == 1:
+        number_of_stops = "(1 stop)"
+    else:
+        number_of_stops = "(" + str(number_of_stops) + " stops)"
     quote_embed = discord.Embed(
         title="A2B Bot",
         description='See your estimate below',
         color=discord.Colour.red()
     )
     quote_embed.add_field(name="Customer:", value=user.mention, inline=False)
-    quote_embed.add_field(name="Distance:", value=str(distance) + "nm " + str(number_of_stops), inline=False)
+    quote_embed.add_field(name="Distance:", value=str(distance) + "nm " + number_of_stops, inline=False)
     quote_embed.add_field(name="Cost:", value="v$" + str(price) + " + expenses", inline=False)
     quote_embed.add_field(name="Delivery within:", value=str(days) + " days", inline=False)
     quote_embed.add_field(name="Next steps:", value="If you want to get a mo"
