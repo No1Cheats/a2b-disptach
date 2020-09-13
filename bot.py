@@ -15,8 +15,8 @@ with open('config.json') as config_file:
     config = json.load(config_file)
 
 TOKEN = config['token']  # Psst keep secret
-client = commands.Bot(command_prefix='!')  # Meaning that all commands must start with a ! so for instance !quote
-client.remove_command('help')  # removes the custom help command
+client = commands.Bot(command_prefix='!')  # Meaning that all commands must start with a ! so for instance !estimate
+client.remove_command('help')  # removes the standard help command
 
 
 def get_station(loc):
@@ -119,8 +119,8 @@ async def estimate(ctx, registration, destination):
     distance = get_distance(origin, destination)
     number_of_stops = get_number_of_stops(aircraft_type, distance)
     price = distance * 10
-    # If the A/C does not have IFR then a
-    if equipment == 'VFR':
+    # If the A/C does not have AP we apply a 2 dollar per nm penalty
+    if equipment == 'VFR' or equipment == 'IFR':
         price += distance * 2
     # decision tree deciding the amount of days a ferry will take
     if distance < 1000:

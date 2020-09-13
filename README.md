@@ -46,4 +46,4 @@ The AVWX header can be obtained on [AVWX](https://avwx.rest/). The format needs 
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/No1Cheats/fs-bot/blob/master/LICENSE) file for details
+This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/No1Cheats/a2b-disptach/blob/master/LICENSE) file for details
