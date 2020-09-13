@@ -47,6 +47,12 @@ def get_distance(loc1, loc2):
 
 
 def get_number_of_stops(aircraft_type, distance):
+    """
+    Function calculates how many stops a certain plane will need to complete the trip
+    :param aircraft_type: e.g. TBM 850
+    :param distance: distance of the trip
+    :return: Aircraft name, Aircraft Location and Aircraft equipment
+    """
     url = "https://server.fseconomy.net/data?userkey=" + config[
         'datafeed'] + "&format=xml&query=aircraft&search=configs"
     response = requests.request("GET", url)
@@ -62,8 +68,6 @@ def get_number_of_stops(aircraft_type, distance):
                 max_flight_time = fuel_capacity / gph  # Maximum flight time the plane can achieve according to it's
                 # maximum fuel capacity
                 max_range = cruise_speed * max_flight_time
-                print(max_range)
-                print(distance)
                 if max_range > distance:
                     return 0
                 return math.floor(distance / max_range)
@@ -101,6 +105,12 @@ async def help(ctx):
 
 @client.command()
 async def estimate(ctx, registration, destination):
+    """
+    Gives the user on discord an estimate of the cost of their ferry flight
+    :param ctx: discord context
+    :param registration: the plane's registration e.g. N400FL
+    :param destination: where the plane is supposed to go e.g. KFMY
+    """
     user = ctx.author
     plane = get_plane_info(registration)
     aircraft_type = plane[0]
