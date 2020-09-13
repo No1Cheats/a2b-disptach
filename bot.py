@@ -143,9 +143,8 @@ async def estimate(ctx, registration, destination):
     quote_embed.add_field(name="Distance:", value=str(distance) + "nm " + number_of_stops, inline=False)
     quote_embed.add_field(name="Cost:", value="v$" + str(price) + " + expenses", inline=False)
     quote_embed.add_field(name="Delivery within:", value=str(days) + " days", inline=False)
-    quote_embed.add_field(name="Next steps:", value="If you want to get a mo"
-                                                    " tool using straight line distance. If you wish to accept"
-                                                    " the quote please reply with your acceptance.", inline=False)
+    quote_embed.add_field(name="Next steps:", value="Use !quote to get a quote from an employee and proceed from there."
+                          , inline=False)
     await ctx.send(embed=quote_embed)
 
 
