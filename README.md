@@ -14,7 +14,6 @@ All of the prerequisites are listed below and are also mentioned in the requirem
 discord.py
 geopy.distance
 requests
-math
 ```
 
 Further, a config.json file is needed, this should be located in the root folder. This includes the Discord Token as well as the AVWX authorization Header and the FSEconomy Datafeed. 
