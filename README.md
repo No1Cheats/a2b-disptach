@@ -11,12 +11,10 @@ This project works on Heroku or your own VPS.
 All of the prerequisites are listed below and are also mentioned in the requirements.txt.
 
 ```
-json
 discord.py
 geopy.distance
 requests
 math
-xml.etree
 ```
 
 Further, a config.json file is needed, this should be located in the root folder. This includes the Discord Token as well as the AVWX authorization Header and the FSEconomy Datafeed. 
@@ -37,7 +35,6 @@ The AVWX header can be obtained on [AVWX](https://avwx.rest/). The format needs 
 * [requests](https://github.com/psf/requests) - HTTP library
 * [FSEconomy](https://fseconomy.net) - Datafeed
 * [AVWX](https://github.com/avwx-rest/avwx-api) - used for current weather and station information 
-* [xml.etree](https://github.com/python/cpython/blob/3.8/Lib/xml/etree/ElementTree.py) - used for datafeed decoding
 * [PyCharm](https://www.jetbrains.com/pycharm/) - Python IDE
 
 ## Authors
